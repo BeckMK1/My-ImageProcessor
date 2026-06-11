@@ -26,40 +26,34 @@ end
 
 function compress_multi
     if not set -q argv[1]
-        echo "Usage: compress_multi <files> [format]"
+        echo "Usage: compress_multi <dir> [format]"
         return 1
     end
 
-    set dir .
-
-    if set -q argv[1]
-        set dir $argv[1]
-    end
-
+    set dir $argv[1]
     set format jpg
 
     if set -q argv[2]
         set format $argv[2]
-    end 
+    end
 
-    mkdir -p "compressed"
+    mkdir -p compressed
 
     for file in $dir/*
         if not test -f "$file"
             continue
         end
 
-        switch(string lower (path extension $file))
-        case .jpg .jpeg .png .webp
+        switch (string lower (path extension $file))
+            case .jpg .jpeg .png .webp
+                set basename (path basename (path change-extension "" $file))
+                set output "compressed/$basename-compressed.$format"
 
-        set basename(path basename (path change-extension "" $file))
-        set output "compressed/$basename-compressed.$format"
-
-        magick "$file" \
-        -resize '2020x2020>' \
-        -quality 70 \
-        "$output"
-        end 
+                magick "$file" \
+                    -resize '2020x2020>' \
+                    -quality 70 \
+                    "$output"
+        end
     end
 end
 
